@@ -1,46 +1,42 @@
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+use Test;
 
-######################### We start with some black magic to print on failure.
+BEGIN { plan tests => 4 }
 
-BEGIN { $| = 1; print "1..5\n"; }
-END {print "not ok 1\n" unless $loaded;}
+my $verbose = 0;
+
 use Schedule::At;
-$loaded = 1;
-print "ok 1\n";
-
-######################### End of black magic.
-
-listJobs('Initial state');
-print "ok 2\n";
+ok(1);
 
 my $rv;
 
 my $nextYear = (localtime)[5] + 1901;
+
+listJobs('Init state') if $verbose;
+my %beforeJobs = Schedule::At::getJobs();
 
 $rv = Schedule::At::add (
 	TIME => $nextYear . '01181530', 
 	COMMAND => 'ls', 
 	TAG => 'Schedule::At'
 );
-listJobs('Added new job');
-print "not " if $rv;
-print "ok 3\n";
+my %afterJobs = Schedule::At::getJobs();
+
+listJobs('Added new job') if $verbose;
+ok(!$rv && ((scalar(keys %beforeJobs)+1) == scalar(keys %afterJobs)));
 
 my %atJobs = Schedule::At::getJobs();
-print "not " if !defined(%atJobs);
-print "ok 4\n";
+ok(%atJobs);
 
 $rv = Schedule::At::remove (TAG => 'Schedule::At');
-listJobs('Schedule::At jobs deleted');
-print "not " if $rv;
-print "ok 5\n";
+my %afterRemoveJobs = Schedule::At::getJobs();
+listJobs('Schedule::At jobs deleted') if $verbose;
+ok(!$rv && scalar(keys %beforeJobs) == scalar(keys %afterRemoveJobs));
 
 sub listJobs {
 	print STDERR "@_\n" if @_;
 	my %atJobs = Schedule::At::getJobs();
 	foreach my $job (values %atJobs) {
-		print STDERR "\t", $job->{JOBID}, "\t", $job->{TIME}, ' ', 
+		print STDERR "\tID:$job->{JOBID}, Time:$job->{TIME}, Tag:",
 			($job->{TAG} || ''), "\n";
 	}
 }

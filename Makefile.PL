@@ -5,7 +5,7 @@ WriteMakefile(
     'NAME'	=> 'Schedule::At',
     'VERSION_FROM' => 'At.pm', # finds $VERSION
     'dist' => {
-	TARFLAGS => 'cvfF', 
+	TARFLAGS => 'cvf', 
 	COMPRESS => 'gzip', 
 	SUFFIX => 'gz',
 	},

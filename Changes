@@ -11,3 +11,13 @@ Revision history for Perl extension Schedule::At.
 
 1.02  Thu Feb 12 11:55:49 1998
 	- Fixed test suite expiration bug
+
+1.03  Mon Mar 25 12:53:38 MET 2002
+	- Removed support for AUTOLOAD (and bugs derived...)
+		(reported by ydesyatnik@digitalthink.com, kar@webline.dk,
+		william.l.kidd@VBA.VA.GOV, andreas.koenig@dubravka.in-berlin.de)
+	- Added support for AIX (not tested by me)
+		(sent by Roger.Kehr@dresdner-bank.com)
+	- Added support for Dynix/ptx (not tested by me)
+		(sent by william.l.kidd@VBA.VA.GOV)
+	- Added support for current distributions of Linux

@@ -2,16 +2,13 @@ package Schedule::At;
 
 require 5.004;
 
-# Copyright (c) 1997,1998 Jose A. Rodriguez. All rights reserved.
+# Copyright (c) 1997-2002 Jose A. Rodriguez. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
 use vars qw($VERSION @ISA $TIME_FORMAT);
 
-use AutoLoader 'AUTOLOAD';
-@ISA = qw(AutoLoader);
-
-$VERSION = '1.02';
+$VERSION = '1.03';
 
 ###############################################################################
 # Load configuration for this OS
@@ -20,10 +17,9 @@ $VERSION = '1.02';
 use Config;
 
 my @configs = split (/\./, "$Config{'osname'}.$Config{'osvers'}");
-
 while (@configs) {
 	my $subName = 'AtCfg_' . join('_', @configs);
-	$subName =~ tr/./_/;
+	$subName =~ s/[^\w\d]/_/g;
 
 	eval "&$subName"; # Call configuration subroutine
 	last if !$@; 
@@ -73,7 +69,7 @@ sub remove {
 
 		$command =~ s/%JOBID%/$params{JOBID}/g;
 
-		system($command) / 256;
+		system($command) >> 8;
 	} else {
 		return if !defined $params{TAG};
 
@@ -160,8 +156,6 @@ sub std2atTime {
 
 	$timeFormat;
 }
-
-__END__
 
 =head1 NAME
 
@@ -328,6 +322,39 @@ sub AtCfg_linux {
 	$AT{'getJobs'} = 'atq';
 	$AT{'headings'} = ['Date'];
 	$AT{'getCommand'} = 'at -c %JOBID% |';
-	$AT{'parseJobList'} = 
-		sub { (substr($_[0], 27), substr($_[0], 0, 17)) } ;
+	# 1       2003-01-18 15:30 a josear
+	$AT{'parseJobList'} = sub { 
+		my @fields = split("\t", $_[0]);
+		($fields[0], substr($fields[1], 0, 16)) 
+	};
+}
+
+sub AtCfg_aix {
+	&AtCfg_hpux;
+}
+
+sub AtCfg_dynixptx {
+        $AT{'add'} = 'at %TIME% 2> /dev/null';
+        $AT{'addFile'} = 'at -f %FILE% %TIME% 2> /dev/null';
+        $AT{'timeFormat'} = sub {
+                my ($year, $month, $day, $hour, $mins) = @_;
+
+                my @months = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+
+                "$hour:$mins " . $months[$month-1] . " $day, $year";
+        };
+        $AT{'remove'} = 'at -r %JOBID%';
+        $AT{'getJobs'} = 'at -l';
+        $AT{'headings'} = [];
+        $AT{'getCommand'} = '/usr/spool/cron/atjobs/%JOBID%';
+        $AT{'parseJobList'} = sub {
+                my $user = scalar getpwuid $<;
+                if ($user eq 'root') {
+                        $_[0] =~ /^\s*\S+\s*\S+\s*\S+\s*(\S+)\s+(.*)$/
+                }
+                else {
+                        $_[0] =~ /(\S+)\s+(.*)$/
+                }
+        };
 }
