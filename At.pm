@@ -8,7 +8,7 @@ require 5.004;
 
 use vars qw($VERSION @ISA $TIME_FORMAT);
 
-$VERSION = '1.04';
+$VERSION = '1.05';
 
 ###############################################################################
 # Load configuration for this OS
@@ -312,7 +312,7 @@ Jose A. Rodriguez (josear@ac.upc.es)
 
 sub AtCfg {
 	# Currently the default configuration just aborts
-	die "There is no config for this OS";
+	die "SORRY! There is no config for this OS.\n";
 }
 
 sub AtCfg_solaris {
@@ -330,7 +330,8 @@ sub AtCfg_solaris {
 	$AT{'getJobs'} = 'at -l';
 	$AT{'headings'} = [];
 	$AT{'getCommand'} = '/usr/spool/cron/atjobs/%JOBID%';
-	$AT{'parseJobList'} = sub { $_[0] =~ /^\s*(\S+)\s+(.*)$/ };
+	# Ignore "user = xxx" when executed by root
+	$AT{'parseJobList'} = sub { $_[0] =~ /^.*(\d{10}.a)\s+(.*)$/ };
 }
 
 sub AtCfg_sunos {
@@ -348,6 +349,8 @@ sub AtCfg_sunos {
 
 sub AtCfg_dec_osf {
 	&AtCfg_solaris;
+	# josear.1137594600.a     Wed Jan 18 15:30:00 2006
+	$AT{'parseJobList'} = sub { $_[0] =~ /^(\S+)\s+(.*)$/ };
 }
 
 sub AtCfg_hpux {
@@ -381,27 +384,45 @@ sub AtCfg_aix {
 }
 
 sub AtCfg_dynixptx {
-        $AT{'add'} = 'at %TIME% 2> /dev/null';
-        $AT{'addFile'} = 'at -f %FILE% %TIME% 2> /dev/null';
-        $AT{'timeFormat'} = sub {
-                my ($year, $month, $day, $hour, $mins) = @_;
+	$AT{'add'} = 'at %TIME% 2> /dev/null';
+	$AT{'addFile'} = 'at -f %FILE% %TIME% 2> /dev/null';
+	$AT{'timeFormat'} = sub {
+	        my ($year, $month, $day, $hour, $mins) = @_;
 
-                my @months = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+	        my @months = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+	                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
 
-                "$hour:$mins " . $months[$month-1] . " $day, $year";
-        };
-        $AT{'remove'} = 'at -r %JOBID%';
-        $AT{'getJobs'} = 'at -l';
-        $AT{'headings'} = [];
-        $AT{'getCommand'} = '/usr/spool/cron/atjobs/%JOBID%';
-        $AT{'parseJobList'} = sub {
-                my $user = scalar getpwuid $<;
-                if ($user eq 'root') {
-                        $_[0] =~ /^\s*\S+\s*\S+\s*\S+\s*(\S+)\s+(.*)$/
-                }
-                else {
-                        $_[0] =~ /(\S+)\s+(.*)$/
-                }
-        };
+	        "$hour:$mins " . $months[$month-1] . " $day, $year";
+	};
+	$AT{'remove'} = 'at -r %JOBID%';
+	$AT{'getJobs'} = 'at -l';
+	$AT{'headings'} = [];
+	$AT{'getCommand'} = '/usr/spool/cron/atjobs/%JOBID%';
+	$AT{'parseJobList'} = sub {
+	        my $user = scalar getpwuid $<;
+	        if ($user eq 'root') {
+	                $_[0] =~ /^\s*\S+\s*\S+\s*\S+\s*(\S+)\s+(.*)$/
+	        }
+	        else {
+	                $_[0] =~ /(\S+)\s+(.*)$/
+	        }
+	};
+}
+
+sub AtCfg_freebsd {
+	$AT{'add'} = 'at %TIME% 2> /dev/null';
+	$AT{'addFile'} = 'at -f %FILE% %TIME% 2> /dev/null';
+	$AT{'timeFormat'} = sub {
+		my ($year, $month, $day, $hour, $mins) = @_;
+
+	my @months = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+		'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+
+	        "$hour:$mins " . $months[$month-1] . " $day $year";
+	};
+	$AT{'remove'} = 'atrm %JOBID%';
+	$AT{'getJobs'} = 'at -l';
+	$AT{'headings'} = ['Date', 'Owner', 'Queue', 'Job'];
+	$AT{'getCommand'} = 'at -c %JOBID% | '; 
+	$AT{'parseJobList'} = sub { $_[0] =~ s/^\s*(.+)\s+\S+\s+\S+\s+(\d+)$/$2_$1/; $_[0] =~ /^(.+)_(.+)$/ };
 }

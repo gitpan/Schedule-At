@@ -1,11 +1,11 @@
 Revision history for Perl extension Schedule::At.
 
 1.00  Fri Oct  3 19:36:47 1997
-	- original version; created by Jose A. Rodriguez <josear@ac.upc.es>
+	- original version; created by Jose A. Rodriguez <josear AT ac.upc.es>
 
 1.01  Wed Nov 12 09:37:16 1997
 	- Removed warning about 'inherited AUTOLOAD for non-methods'
-		(reported by jon@uns.com.au)
+		(reported by jon AT uns.com.au)
 	- Fixed SunOS settings (bad date specification)
 	- Fixed a few bugs in the test suite
 
@@ -14,23 +14,26 @@ Revision history for Perl extension Schedule::At.
 
 1.03  Mon Mar 25 12:53:38 MET 2002
 	- Removed support for AUTOLOAD (and bugs derived...)
-		(reported by ydesyatnik@digitalthink.com, kar@webline.dk,
-		william.l.kidd@VBA.VA.GOV, andreas.koenig@dubravka.in-berlin.de)
+		(reported by ydesyatnik AT digitalthink.com, kar AT webline.dk,
+		william.l.kidd AT VBA.VA.GOV, andreas.koenig AT dubravka.in-berlin.de)
 	- Added support for AIX (not tested by me)
-		(sent by Roger.Kehr@dresdner-bank.com)
+		(sent by Roger.Kehr AT dresdner-bank.com)
 	- Added support for Dynix/ptx (not tested by me)
-		(sent by william.l.kidd@VBA.VA.GOV)
+		(sent by william.l.kidd AT VBA.VA.GOV)
 	- Added support for current distributions of Linux
 
 1.04  Wed Jul 17 09:08:28 MEST 2002
 	- getJobs now dies (instead of returning undef) if there is an error
-		(suggested by Bernhard Graf <fisch@augensalat.de>)
+		(suggested by Bernhard Graf <fisch AT augensalat.de>)
 	- Added subroutine 'readJobs' to get the commands of jobs
-		(feature suggested by Bernhard Graf <fisch@augensalat.de>)
+		(feature suggested by Bernhard Graf <fisch AT augensalat.de>)
 	- Added TAG and JOBID params support to 'getJobs'
 		(feature suggested by Aaron Duncan 
-			<aaron.duncan@centrelink.gov.au>)
+			<aaron.duncan AT centrelink.gov.au>)
 	- Fixed documentation bug (when adding a job with 'add', the
 		TAG param does not work with the FILE param). The POD
 		stated the opposite.
 		
+1.05  Tue Mar 22 11:34:01 MET 2005
+	- Fixed SunOS support (not working for root, rt.cpan.org: Ticket #4427)
+	- Added support for FreeBSD (Frazer Irving <frazer AT homescreen.com.au>)
