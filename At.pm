@@ -8,7 +8,7 @@ require 5.004;
 
 use vars qw($VERSION @ISA $TIME_FORMAT);
 
-$VERSION = '1.03';
+$VERSION = '1.04';
 
 ###############################################################################
 # Load configuration for this OS
@@ -43,7 +43,7 @@ sub add {
 	my $command = $AT{($params{FILE} ? 'addFile' : 'add')};
 	return &$command($params{JOBID}) if ref($command) eq 'CODE';
 
-	my $atTime = std2atTime($params{TIME});
+	my $atTime = _std2atTime($params{TIME});
 	
 	$command =~ s/%TIME%/$atTime/g;
 	$command =~ s/%FILE%/$params{FILE}/g;
@@ -79,20 +79,22 @@ sub remove {
 			next if !defined($job->{JOBID}) || 
 				!defined($job->{TAG});
 
-			remove (JOBID => "$job->{JOBID}") 
+			remove(JOBID => "$job->{JOBID}") 
 				if $job->{JOBID} && $params{TAG} eq $job->{TAG};
 		}
 	}
 }
 
 sub getJobs {
+	my %param = @_;
+
 	my %jobs;
 	
 	my $command = $AT{'getJobs'};
 	return &$command(@_) if ref($command) eq 'CODE';
 
 	open (ATCMD, "$command |")
-		or return undef;
+		or die "Schedule::At: Can't exec getJobs command: $!\n";
 	line: while (defined (my $atLine = <ATCMD>)) {
 		if (defined $AT{'headings'}) {
 			foreach my $head (@{$AT{'headings'}}) {
@@ -105,19 +107,36 @@ sub getJobs {
 		my %atJob;
 		($atJob{JOBID}, $atJob{TIME}) 
 			= &{$AT{'parseJobList'}}($atLine);
-		$atJob{TAG} = getTag (JOBID => $atJob{JOBID});
+		$atJob{TAG} = _getTag(JOBID => $atJob{JOBID});
+		next if $param{TAG} && 
+			(!$atJob{TAG} || $atJob{TAG} ne $param{TAG});
+		next if $param{JOBID} && 
+			(!$atJob{JOBID} || $atJob{JOBID} ne $param{JOBID});
 		$jobs{$atJob{JOBID}} = \%atJob;
 	}
 	close (ATCMD);
 
-	return %jobs;
+	%jobs;
+}
+
+sub readJobs {
+	my %jobs = getJobs(@_);
+
+	my @job_ids = map { $_->{JOBID} } values %jobs;
+
+	my %content;
+	foreach my $jobid (@job_ids) {
+		$content{$jobid} = _readJob(JOBID => $jobid);
+	}
+
+	%content
 }
 
 ###############################################################################
 # Private subroutines
 ###############################################################################
 
-sub getTag {
+sub _readJob {
 	my %params = @_;
 
 	my $command = $AT{'getCommand'};
@@ -125,19 +144,31 @@ sub getTag {
 
 	$command =~ s/%JOBID%/$params{JOBID}/g;
 
-	my $tag;
-
-	open (GETTAG, "$command")
+	local $/ = undef; # slurp mode
+	open (JOB, "$command")
 		or die "Can't open $command: $!\n";
-	while (defined (my $commandLine = <GETTAG>)) {
+	my $job = <JOB>;
+	close (JOB);
+
+	$job
+}
+
+sub _getTag {
+	my %params = @_;
+
+	my $job =  _readJob(@_);
+	$job =~ /$TAGID(.*)$/m;
+	return $1;
+
+	my @job = split("\n", _readJob(@_));
+	foreach my $commandLine (@job) {
 		return $1 if $commandLine =~ /$TAGID(.*)$/;
 	}
-	close (GETTAG);
 
 	undef;
 }
 
-sub std2atTime {
+sub _std2atTime {
 	my ($stdTime) = @_;
 
 	# StdTime: YYYYMMDDHHMM
@@ -165,13 +196,18 @@ Schedule::At - OS independent interface to the Unix 'at' command
 
  require Schedule::At;
 
- Schedule::At::add(TIME => $string, COMMAND =>$string [, TAG =>$string]);
- Schedule::At::add(TIME => $string, FILE => $string [, TAG => $string])
+ Schedule::At::add(TIME => $string, COMMAND => $string [, TAG =>$string]);
+ Schedule::At::add(TIME => $string, FILE => $string)
+
+ %jobs = Schedule::At::getJobs();
+ %jobs = Schedule::At::getJobs(JOBID => $string);
+ %jobs = Schedule::At::getJobs(TAG => $string);
+
+ Schedule::At::readJob(JOBID => $string);
+ Schedule::At::readJob(TAG => $string);
 
  Schedule::At::remove(JOBID => $string);
  Schedule::At::remove(TAG => $string);
-
- %jobs = Schedule::At::getJobs();
 
 =head1 DESCRIPTION
 
@@ -198,6 +234,14 @@ identify a job or a set of jobs.
 
 Returns 0 on success or a value != 0 if an error occurred.
 
+=item Schedule::At::readJob
+
+Read the job content identified by the B<JOBID> or B<TAG> parameters.
+
+Returns an string with the job content. As the operating systems usually
+add a few environment settings, the content is longer than the command
+provided when adding the job.
+
 =item Schedule::At::remove
 
 Remove an at job.
@@ -211,7 +255,10 @@ Returns 0 on success or a value != 0 if an error occurred.
 
 =item Schedule::At::getJobs
 
-Returns a hash with all the current jobs or undef if an error occurred. 
+Called with no params returns a hash with all the current jobs or 
+dies if an error has occurred. 
+It's possible to specify the B<TAG> or B<JOBID> parameters so only matching
+jobs are returned.
 For each job the key is a JOBID (an OS dependent string that shouldn't be 
 interpreted), and the value is a hash reference. 
 
