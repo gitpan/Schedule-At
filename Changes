@@ -1,5 +1,10 @@
 Revision history for Perl extension Schedule::At.
 
-0.01  Fri Oct  3 19:36:47 1997
+1.00  Fri Oct  3 19:36:47 1997
 	- original version; created by Jose A. Rodriguez <josear@ac.upc.es>
 
+1.01  Wed Nov 12 09:37:16 1997
+	- Removed warning about 'inherited AUTOLOAD for non-methods'
+		(reported by jon@uns.com.au)
+	- Fixed SunOS settings (bad date specification)
+	- Fixed a few bugs in the test suite

@@ -1,6 +1,6 @@
 package Schedule::At;
 
-require 5.003;
+require 5.004;
 
 # Copyright (c) 1997 Jose A. Rodriguez. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
@@ -8,10 +8,10 @@ require 5.003;
 
 use vars qw($VERSION @ISA $TIME_FORMAT);
 
-require AutoLoader;
+use AutoLoader 'AUTOLOAD';
 @ISA = qw(AutoLoader);
 
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 ###############################################################################
 # Load configuration for this OS
@@ -45,7 +45,7 @@ sub add {
 	my %params = @_;
 
 	my $command = $AT{($params{FILE} ? 'addFile' : 'add')};
-	return &$command(@_) if ref($command) eq 'CODE';
+	return &$command($params{JOBID}) if ref($command) eq 'CODE';
 
 	my $atTime = std2atTime($params{TIME});
 	
@@ -53,7 +53,7 @@ sub add {
 	$command =~ s/%FILE%/$params{FILE}/g;
 
 	if ($params{FILE}) {
-		return system($command) / 256;
+		return (system($command) / 256);
 	} else {
 		open (ATCMD, "| $command") or return 1;
 		print ATCMD "$TAGID$params{TAG}\n" if $params{TAG};
@@ -125,7 +125,7 @@ sub getTag {
 	my %params = @_;
 
 	my $command = $AT{'getCommand'};
-	return &$command(@_) if ref($command) eq 'CODE';
+	$command = &$command($params{JOBID}) if ref($command) eq 'CODE';
 
 	$command =~ s/%JOBID%/$params{JOBID}/g;
 
@@ -161,7 +161,6 @@ sub std2atTime {
 	$timeFormat;
 }
 
-1;
 __END__
 
 =head1 NAME
@@ -284,17 +283,26 @@ sub AtCfg_solaris {
 		my @months = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
 			'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
 
-		"$hour:$mins " . $months[$month-1] . " $day,$year";
+		"$hour:$mins " . $months[$month-1] . " $day, $year";
 	};
 	$AT{'remove'} = 'at -r %JOBID%';
 	$AT{'getJobs'} = 'at -l';
 	$AT{'headings'} = [];
 	$AT{'getCommand'} = '/usr/spool/cron/atjobs/%JOBID%';
-	$AT{'parseJobList'} = sub { $_[0] =~ /^(\S+)\s+(.*)$/ };
+	$AT{'parseJobList'} = sub { $_[0] =~ /^\s*(\S+)\s+(.*)$/ };
 }
 
 sub AtCfg_sunos {
 	&AtCfg_solaris;
+	$AT{'getCommand'} = sub {
+		my ($jobid) = @_;
+
+		for my $filename (glob('/usr/spool/cron/atjobs/*')) {
+			return $filename if (stat($filename))[1] == $jobid;
+		}
+
+		undef;
+	}
 }
 
 sub AtCfg_dec_osf {
