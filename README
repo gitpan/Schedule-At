@@ -27,3 +27,13 @@
  OS dependent commands. Please, feel free to send e-mail to josear@ac.upc.es
  to discuss this matter, configure Schedule::At for more Operating Systems or
  report bugs.
+
+ Installation
+ ---------------------------------------------------------------------------
+ As usual:
+
+ 	perl Makefile.PL
+ 	make
+ 	make test
+ 	make install
+

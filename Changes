@@ -8,3 +8,6 @@ Revision history for Perl extension Schedule::At.
 		(reported by jon@uns.com.au)
 	- Fixed SunOS settings (bad date specification)
 	- Fixed a few bugs in the test suite
+
+1.02  Thu Feb 12 11:55:49 1998
+	- Fixed test suite expiration bug

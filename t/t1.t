@@ -16,8 +16,10 @@ print "ok 2\n";
 
 my $rv;
 
+my $nextYear = (localtime)[5] + 1901;
+
 $rv = Schedule::At::add (
-	TIME => '199801181530', 
+	TIME => $nextYear . '01181530', 
 	COMMAND => 'ls', 
 	TAG => 'Schedule::At'
 );

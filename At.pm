@@ -2,7 +2,7 @@ package Schedule::At;
 
 require 5.004;
 
-# Copyright (c) 1997 Jose A. Rodriguez. All rights reserved.
+# Copyright (c) 1997,1998 Jose A. Rodriguez. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
@@ -11,7 +11,7 @@ use vars qw($VERSION @ISA $TIME_FORMAT);
 use AutoLoader 'AUTOLOAD';
 @ISA = qw(AutoLoader);
 
-$VERSION = '1.01';
+$VERSION = '1.02';
 
 ###############################################################################
 # Load configuration for this OS
