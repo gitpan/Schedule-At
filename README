@@ -1,0 +1,29 @@
+
+ Schedule::At - OS independent interface to the Unix 'at' command
+ ===========================================================================
+                                                   Jose A. Rodriguez Garrido
+                                                            josear@ac.upc.es
+
+ Sometimes when you write a perl script you have to call an external command.
+ That's ok if it's a private script or if you know for sure it will run on a
+ single architecture.
+
+ But if want to distribute the script or you work on a multi-architecture
+ environment you can't simply call to the external command and expect it
+ will work just fine. That only happens in the movies.
+
+ This module privides an OS independent interface to the Unix 'at' command
+ and it will map the calls to real (and OS dependent) commands. It has been
+ configured and tested for:
+
+		Solaris 2.6
+		HPUX 10.20
+		SunOs 4.1.4
+		Digital Unix 3.2
+		Linux (RedHat 4.1)
+ 
+ You can configure a new OS very easyly (read the end of the At.pm module),
+ and the mechanism used could be used for configuring and adapting other
+ OS dependent commands. Please, feel free to send e-mail to josear@ac.upc.es
+ to discuss this matter, configure Schedule::At for more Operating Systems or
+ report bugs.
