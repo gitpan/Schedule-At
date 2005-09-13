@@ -8,7 +8,7 @@ require 5.004;
 
 use vars qw($VERSION @ISA $TIME_FORMAT);
 
-$VERSION = '1.05';
+$VERSION = '1.06';
 
 ###############################################################################
 # Load configuration for this OS
@@ -425,4 +425,20 @@ sub AtCfg_freebsd {
 	$AT{'headings'} = ['Date', 'Owner', 'Queue', 'Job'];
 	$AT{'getCommand'} = 'at -c %JOBID% | '; 
 	$AT{'parseJobList'} = sub { $_[0] =~ s/^\s*(.+)\s+\S+\s+\S+\s+(\d+)$/$2_$1/; $_[0] =~ /^(.+)_(.+)$/ };
+}
+
+# Mac OS X (darwin, tiger)
+sub AtCfg_darwin {
+	$AT{'add'} = 'at %TIME% 2> /dev/null';
+	$AT{'addFile'} = 'at -f %FILE% %TIME% 2> /dev/null';
+	$AT{'timeFormat'} = '%HOUR%:%MINS% %MONTH%/%DAY%/%YEAR%';
+	$AT{'remove'} = 'atrm %JOBID%';
+	$AT{'getJobs'} = 'atq';
+	$AT{'headings'} = ['Job','Date'];
+	$AT{'getCommand'} = 'at -c %JOBID% | ';
+	# 74      Wed Jan 18 15:32:00 2006
+	$AT{'parseJobList'} = sub {
+		my @fields = split("\t", $_[0]);
+		($fields[0], substr($fields[1], 0, 16)) 
+	};
 }

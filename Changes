@@ -37,3 +37,7 @@ Revision history for Perl extension Schedule::At.
 1.05  Tue Mar 22 11:34:01 MET 2005
 	- Fixed SunOS support (not working for root, rt.cpan.org: Ticket #4427)
 	- Added support for FreeBSD (Frazer Irving <frazer AT homescreen.com.au>)
+
+1.06  Tue Sep 13 09:10:56 MEST 2005
+	- Added support for Darwin (Felipe Wettstein <karl AT gromski.ch>)
+
