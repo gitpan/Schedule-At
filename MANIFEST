@@ -4,3 +4,4 @@ Changes
 At.pm
 Makefile.PL
 t/t1.t
+META.yml                                 Module meta-data (added by MakeMaker)

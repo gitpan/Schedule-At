@@ -41,3 +41,7 @@ Revision history for Perl extension Schedule::At.
 1.06  Tue Sep 13 09:10:56 MEST 2005
 	- Added support for Darwin (Felipe Wettstein <karl AT gromski.ch>)
 
+1.07  Mon Sep  8 09:21:34 MEST 2008
+	- Fixed typo in pod (Michael Gang" <michaelgang AT gmail.com>)
+	- remove function using TAG now returns something useful (pointed by
+		<T.Haecker AT gmx.net>)

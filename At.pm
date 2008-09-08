@@ -2,13 +2,13 @@ package Schedule::At;
 
 require 5.004;
 
-# Copyright (c) 1997-2002 Jose A. Rodriguez. All rights reserved.
+# Copyright (c) 1997-2006 Jose A. Rodriguez. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
 use vars qw($VERSION @ISA $TIME_FORMAT);
 
-$VERSION = '1.06';
+$VERSION = '1.07';
 
 ###############################################################################
 # Load configuration for this OS
@@ -16,7 +16,7 @@ $VERSION = '1.06';
 
 use Config;
 
-my @configs = split (/\./, "$Config{'osname'}.$Config{'osvers'}");
+my @configs = split (/\./, "$Config{'osname'}");
 while (@configs) {
 	my $subName = 'AtCfg_' . join('_', @configs);
 	$subName =~ s/[^\w\d]/_/g;
@@ -74,14 +74,19 @@ sub remove {
 		return if !defined $params{TAG};
 
 		my %jobs = getJobs();
+		my %return;
 
 		foreach my $job (values %jobs) {
 			next if !defined($job->{JOBID}) || 
 				!defined($job->{TAG});
 
-			remove(JOBID => "$job->{JOBID}") 
-				if $job->{JOBID} && $params{TAG} eq $job->{TAG};
+			if ($job->{JOBID} && $params{TAG} eq $job->{TAG}) {
+				$return{$job->{JOBID}} = 
+					remove(JOBID => "$job->{JOBID}") 
+			}
 		}
+
+		return \%return
 	}
 }
 
@@ -203,8 +208,8 @@ Schedule::At - OS independent interface to the Unix 'at' command
  %jobs = Schedule::At::getJobs(JOBID => $string);
  %jobs = Schedule::At::getJobs(TAG => $string);
 
- Schedule::At::readJob(JOBID => $string);
- Schedule::At::readJob(TAG => $string);
+ Schedule::At::readJobs(JOBID => $string);
+ Schedule::At::readJobs(TAG => $string);
 
  Schedule::At::remove(JOBID => $string);
  Schedule::At::remove(TAG => $string);
@@ -251,7 +256,9 @@ opaque string returned by the getJobs subroutine). You can also specify
 a job or a set of jobs to delete with the B<TAG> parameter, removing
 all the jobs that have the same tag (as specified with the add subroutine).
 
-Returns 0 on success or a value != 0 if an error occurred.
+Used with JOBID, returns 0 on success or a value != 0 if an error occurred.
+Used with TAG, returns a hash reference where the keys are the JOBID of
+the jobs found and the values indicate the success of the remove operation.
 
 =item Schedule::At::getJobs
 

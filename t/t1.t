@@ -1,4 +1,5 @@
 use Test;
+use strict;
 
 BEGIN { plan tests => 6 }
 
@@ -33,7 +34,7 @@ ok($content, '/thisIsACommand/');
 $rv = Schedule::At::remove (TAG => '_TEST_aTAG');
 my %afterRemoveJobs = Schedule::At::getJobs();
 listJobs('Schedule::At jobs deleted') if $verbose;
-ok(!$rv && scalar(keys %beforeJobs) == scalar(keys %afterRemoveJobs));
+ok(scalar(keys %beforeJobs) == scalar(keys %afterRemoveJobs));
 
 # getJobs with TAG param
 $rv = Schedule::At::add (
