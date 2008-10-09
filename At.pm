@@ -2,13 +2,13 @@ package Schedule::At;
 
 require 5.004;
 
-# Copyright (c) 1997-2006 Jose A. Rodriguez. All rights reserved.
+# Copyright (c) 1997-2008 Jose A. Rodriguez. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
 use vars qw($VERSION @ISA $TIME_FORMAT);
 
-$VERSION = '1.07';
+$VERSION = '1.08';
 
 ###############################################################################
 # Load configuration for this OS
@@ -39,6 +39,7 @@ $TAGID = '##### Please, do not remove this Schedule::At TAG: ';
 
 sub add {
 	my %params = @_;
+        my $cmd;
 
 	my $command = $AT{($params{FILE} ? 'addFile' : 'add')};
 	return &$command($params{JOBID}) if ref($command) eq 'CODE';
@@ -53,7 +54,10 @@ sub add {
 	} else {
 		open (ATCMD, "| $command") or return 1;
 		print ATCMD "$TAGID$params{TAG}\n" if $params{TAG};
-		print ATCMD $params{COMMAND};
+
+		print ATCMD ref($params{COMMAND}) eq "ARRAY" ?
+			join("\n", @{$params{COMMAND}}) : $params{COMMAND};
+                  
 		close (ATCMD);
 	}
 
@@ -202,6 +206,7 @@ Schedule::At - OS independent interface to the Unix 'at' command
  require Schedule::At;
 
  Schedule::At::add(TIME => $string, COMMAND => $string [, TAG =>$string]);
+ Schedule::At::add(TIME => $string, COMMAND => \@array [, TAG =>$string]);
  Schedule::At::add(TIME => $string, FILE => $string)
 
  %jobs = Schedule::At::getJobs();
@@ -226,26 +231,26 @@ command that allows you to execute commands at a specified time.
 Adds a new job to the at queue. 
 
 You have to specify a B<TIME> and a command to execute. The B<TIME> has
-a common format: YYYYMMDDHHmm. Where B<YYYY> is the year (4 digits), B<MM>
+a common format: YYYYMMDDHHmm where B<YYYY> is the year (4 digits), B<MM>
 the month (01-12), B<DD> is the day (01-31), B<HH> the hour (00-23) and
 B<mm> the minutes.
 
 The command is passed with the B<COMMAND> or the B<FILE> parameter.
-B<COMMAND> can be used to pass the command as an string, and B<FILE> to
-read the commands from a file.
+B<COMMAND> can be used to pass the command as an string, or an array of
+commands, and B<FILE> to read the commands from a file.
 
 The optional parameter B<TAG> serves as an application specific way to 
 identify a job or a set of jobs.
 
 Returns 0 on success or a value != 0 if an error occurred.
 
-=item Schedule::At::readJob
+=item Schedule::At::readJobs
 
 Read the job content identified by the B<JOBID> or B<TAG> parameters.
 
-Returns an string with the job content. As the operating systems usually
-add a few environment settings, the content is longer than the command
-provided when adding the job.
+Returns a hash of JOBID => $string where $string is the the job
+content. As the operating systems usually add a few environment settings,
+the content is longer than the command provided when adding the job.
 
 =item Schedule::At::remove
 
@@ -293,10 +298,12 @@ The tag specified in the Schedule::At::add subroutine
  Schedule::At::add (TIME => '199801181530', COMMAND => 'ls', 
 	TAG => 'ScheduleAt');
  # 2
- Schedule::At::add (TIME => '199801181630', COMMAND => 'ls', 
+ @cmdlist = ("ls", "echo hello world");
+
+ Schedule::At::add (TIME => '199801181630', COMMAND => \@cmdlist, 
 	TAG => 'ScheduleAt');
  # 3
- Schedule::At::add (TIME => '199801181730', COMMAND => 'ls');
+ Schedule::At::add (TIME => '199801181730', COMMAND => 'df');
 
  # This will remove #1 and #2 but no #3
  Schedule::At::remove (TAG => 'ScheduleAt');

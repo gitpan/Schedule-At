@@ -45,3 +45,13 @@ Revision history for Perl extension Schedule::At.
 	- Fixed typo in pod (Michael Gang" <michaelgang AT gmail.com>)
 	- remove function using TAG now returns something useful (pointed by
 		<T.Haecker AT gmx.net>)
+
+1.08  Thu Oct  9 07:53:30 MEST 2008
+	- Fixed typos and improve explanations in pod 
+		(Adam Benjamin <aebenjam AT opentext.com>)
+	- addJob now accepts multiple commands as a REF ARRAY
+		(implemented by Adam Benjamin <aebenjam AT opentext.com>)
+	- Many systems don't allow users to execute the "at" command
+		so tests fail. Now you need to set environment AT_CAN_EXEC=1
+		to exec all tests if you're not root. Set AT_VERBOSE=1 to
+		get more info about test execution.

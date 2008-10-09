@@ -1,12 +1,21 @@
 use Test;
 use strict;
 
-BEGIN { plan tests => 6 }
+BEGIN {
+	if ($< == 0 || $> == 0 || $ENV{'AT_CAN_EXEC'}) {
+		$main::FULL_TEST = 1;
+		plan tests => 8;
+	} else {
+		plan tests => 1;
+	}
+}
 
-my $verbose = 0;
+my $verbose = $ENV{'AT_VERBOSE'};
 
 use Schedule::At;
 ok(1);
+
+exit 0 unless $main::FULL_TEST;
 
 my $rv;
 
@@ -44,7 +53,7 @@ $rv = Schedule::At::add (
 );
 $rv = Schedule::At::add (
 	TIME => $nextYear . '01181532', 
-	COMMAND => 'ls /cmd2/',
+	COMMAND => [ 'ls /testCMD2/', 'ls /testCMD3/' ],
 	TAG => '_TEST_tag2'
 );
 
@@ -52,6 +61,11 @@ my %tag1Jobs = Schedule::At::getJobs(TAG => '_TEST_tag1');
 my %tag2Jobs = Schedule::At::getJobs(TAG => '_TEST_tag2');
 listJobs('Schedule::At tag1 and tag2 added') if $verbose;
 ok(join('', map { $_->{TAG} } values %tag1Jobs), '/^(_TEST_tag1)+$/');
+
+my ($jobid2, $content2) = Schedule::At::readJobs(TAG => '_TEST_tag2');
+ok($content2, '/testCMD2/');
+ok($content2, '/testCMD3/');
+
 $rv = Schedule::At::remove (TAG => '_TEST_tag1');
 $rv = Schedule::At::remove (TAG => '_TEST_tag2');
 listJobs('Schedule::At tag1 and tag2 removed') if $verbose;
