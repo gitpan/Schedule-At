@@ -8,7 +8,7 @@ require 5.004;
 
 use vars qw($VERSION @ISA $TIME_FORMAT);
 
-$VERSION = '1.08';
+$VERSION = '1.09';
 
 ###############################################################################
 # Load configuration for this OS
@@ -39,7 +39,6 @@ $TAGID = '##### Please, do not remove this Schedule::At TAG: ';
 
 sub add {
 	my %params = @_;
-        my $cmd;
 
 	my $command = $AT{($params{FILE} ? 'addFile' : 'add')};
 	return &$command($params{JOBID}) if ref($command) eq 'CODE';
@@ -439,6 +438,12 @@ sub AtCfg_freebsd {
 	$AT{'headings'} = ['Date', 'Owner', 'Queue', 'Job'];
 	$AT{'getCommand'} = 'at -c %JOBID% | '; 
 	$AT{'parseJobList'} = sub { $_[0] =~ s/^\s*(.+)\s+\S+\s+\S+\s+(\d+)$/$2_$1/; $_[0] =~ /^(.+)_(.+)$/ };
+}
+
+sub AtCfg_openbsd {
+        &AtCfg_freebsd;
+        $AT{'headings'} = [];
+        $AT{'parseJobList'} = sub { $_[0] =~ /^.*(\d{10}.c)\s+(.*)$/ };
 }
 
 # Mac OS X (darwin, tiger)

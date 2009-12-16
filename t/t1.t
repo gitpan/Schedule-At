@@ -1,21 +1,31 @@
 use Test;
 use strict;
 
-BEGIN {
-	if ($< == 0 || $> == 0 || $ENV{'AT_CAN_EXEC'}) {
-		$main::FULL_TEST = 1;
-		plan tests => 8;
-	} else {
-		plan tests => 1;
-	}
+eval {
+	require Schedule::At;
+};
+if ($@ =~ /SORRY! There is no config for this OS/) {
+	plan tests => 1;
+	skip(1); # OS not supported
+	exit(0);
+} elsif ($@) {
+	die "$@";
 }
 
-my $verbose = $ENV{'AT_VERBOSE'};
+if ($< == 0 || $> == 0 || $ENV{'AT_CAN_EXEC'}) {
+	$main::FULL_TEST = 1;
+	plan tests => 8;
+} else {
+	plan tests => 1;
+}
 
-use Schedule::At;
+# Module compiles!
 ok(1);
 
+# Exit if platform not supported or at command is not available
 exit 0 unless $main::FULL_TEST;
+
+my $verbose = $ENV{'AT_VERBOSE'};
 
 my $rv;
 

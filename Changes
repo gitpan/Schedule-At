@@ -55,3 +55,7 @@ Revision history for Perl extension Schedule::At.
 		so tests fail. Now you need to set environment AT_CAN_EXEC=1
 		to exec all tests if you're not root. Set AT_VERBOSE=1 to
 		get more info about test execution.
+
+1.09 Tue Dec 15 08:54:41 CET 2009
+	- Skip non supported OSs
+	- Added support for OpenBSD (Eric Olsen <herolsen AT alumni.upenn.edu>)
