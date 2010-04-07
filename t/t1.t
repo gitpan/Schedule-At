@@ -14,7 +14,7 @@ if ($@ =~ /SORRY! There is no config for this OS/) {
 
 if ($< == 0 || $> == 0 || $ENV{'AT_CAN_EXEC'}) {
 	$main::FULL_TEST = 1;
-	plan tests => 8;
+	plan tests => 9;
 } else {
 	plan tests => 1;
 }
@@ -88,3 +88,15 @@ sub listJobs {
 			($job->{TAG} || ''), "\n";
 	}
 }
+
+# Adding in the past fails in some at versions, check that!
+my $lastYear = (localtime)[5] + 1900 - 1;
+$rv = Schedule::At::add (
+        TIME => $lastYear . '01181530',
+        COMMAND => 'ls /thisIsACommand/',
+        TAG => '_TEST_pastTAG'
+);
+my %pastJobs = Schedule::At::readJobs(TAG => '_TEST_pastTAG');;
+listJobs();
+my $pastJobs = scalar(keys(%pastJobs));
+ok(($rv != 0 && $pastJobs == 0) || ($rv == 0 && $pastJobs != 0));

@@ -2,13 +2,13 @@ package Schedule::At;
 
 require 5.004;
 
-# Copyright (c) 1997-2008 Jose A. Rodriguez. All rights reserved.
+# Copyright (c) 1997-2010 Jose A. Rodriguez. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
 use vars qw($VERSION @ISA $TIME_FORMAT);
 
-$VERSION = '1.09';
+$VERSION = '1.10';
 
 ###############################################################################
 # Load configuration for this OS
@@ -51,13 +51,17 @@ sub add {
 	if ($params{FILE}) {
 		return (system($command) / 256);
 	} else {
-		open (ATCMD, "| $command") or return 1;
+		# Ignore signal to die in case at commands fails
+		local $SIG{'PIPE'} = 'IGNORE';
+
+		open (ATCMD, "| $command");
 		print ATCMD "$TAGID$params{TAG}\n" if $params{TAG};
 
 		print ATCMD ref($params{COMMAND}) eq "ARRAY" ?
 			join("\n", @{$params{COMMAND}}) : $params{COMMAND};
                   
 		close (ATCMD);
+		return $?;
 	}
 
 	0;

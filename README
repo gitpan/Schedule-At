@@ -28,6 +28,7 @@
 		AIX
 		Dynix/ptx
 		FreeBSD
+		OpenBSD
 		Solaris 2.10
 		Linux
  

@@ -59,3 +59,8 @@ Revision history for Perl extension Schedule::At.
 1.09 Tue Dec 15 08:54:41 CET 2009
 	- Skip non supported OSs
 	- Added support for OpenBSD (Eric Olsen <herolsen AT alumni.upenn.edu>)
+
+1.10 Wed Apr  7 13:35:48 CEST 2010
+	- Fixed bug about reporting exit status on past submited jobs
+	Bug: https://rt.cpan.org/Ticket/Display.html?id=55891
+	(based on patch submited by JLMARTIN <jlmartinez AT capisde.com>)
