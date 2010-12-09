@@ -2,13 +2,16 @@ package Schedule::At;
 
 require 5.004;
 
-# Copyright (c) 1997-2010 Jose A. Rodriguez. All rights reserved.
+# Copyright (c) 1997-2011 Jose A. Rodriguez. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
-use vars qw($VERSION @ISA $TIME_FORMAT);
+use vars qw($VERSION @ISA $TIME_FORMAT $SHELL);
 
-$VERSION = '1.10';
+$VERSION = '1.11';
+
+$SHELL = '';
+
 
 ###############################################################################
 # Load configuration for this OS
@@ -47,6 +50,10 @@ sub add {
 	
 	$command =~ s/%TIME%/$atTime/g;
 	$command =~ s/%FILE%/$params{FILE}/g;
+
+  if ($SHELL) {
+    $command = "SHELL=$SHELL $command";
+  }
 
 	if ($params{FILE}) {
 		return (system($command) / 256);
@@ -291,7 +298,18 @@ The tag specified in the Schedule::At::add subroutine
 
 =back
 
+=head1 Configuration Variables
+
+=item *
+
+$Schedule::At::SHELL
+
+This variable can be used to specify shell for execution of the scheduled command.
+Can be useful for example when scheduling from CGI script and the account of the user under which httpd runs
+is locked by using '/bin/false' or similar as a shell.
+
 =back
+
 
 =head1 EXAMPLES
 

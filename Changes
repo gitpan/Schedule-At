@@ -64,3 +64,6 @@ Revision history for Perl extension Schedule::At.
 	- Fixed bug about reporting exit status on past submited jobs
 	Bug: https://rt.cpan.org/Ticket/Display.html?id=55891
 	(based on patch submited by JLMARTIN <jlmartinez AT capisde.com>)
+
+1.11 Web Dic  9 11:40:11 CET 2010
+	- Added support for $SHELL (Jiří Pavlovský jira AT getnet.cz)
