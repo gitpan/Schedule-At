@@ -67,3 +67,6 @@ Revision history for Perl extension Schedule::At.
 
 1.11 Web Dic  9 11:40:11 CET 2010
 	- Added support for $SHELL (Jiří Pavlovský jira AT getnet.cz)
+
+1.12 Wed May 25 11:53:10 MEST 2011
+	- Added support for NetBSD and DragonFly NetBSD (Dan McMahill <dmcmahill AT netbsd.org>)

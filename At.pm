@@ -8,7 +8,7 @@ require 5.004;
 
 use vars qw($VERSION @ISA $TIME_FORMAT $SHELL);
 
-$VERSION = '1.11';
+$VERSION = '1.12';
 
 $SHELL = '';
 
@@ -337,7 +337,7 @@ is locked by using '/bin/false' or similar as a shell.
 
 =head1 AUTHOR
 
-Jose A. Rodriguez (josear@ac.upc.es)
+Jose A. Rodriguez (jose AT rodriguez.jp)
 
 =cut
 
@@ -460,6 +460,14 @@ sub AtCfg_freebsd {
 	$AT{'headings'} = ['Date', 'Owner', 'Queue', 'Job'];
 	$AT{'getCommand'} = 'at -c %JOBID% | '; 
 	$AT{'parseJobList'} = sub { $_[0] =~ s/^\s*(.+)\s+\S+\s+\S+\s+(\d+)$/$2_$1/; $_[0] =~ /^(.+)_(.+)$/ };
+}
+
+sub AtCfg_netbsd {  
+        &AtCfg_freebsd;
+}
+
+sub AtCfg_dragonfly {  
+        &AtCfg_freebsd;
 }
 
 sub AtCfg_openbsd {
