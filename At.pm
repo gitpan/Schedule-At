@@ -8,7 +8,7 @@ require 5.004;
 
 use vars qw($VERSION @ISA $TIME_FORMAT $SHELL);
 
-$VERSION = '1.12';
+$VERSION = '1.13';
 
 $SHELL = '';
 
@@ -298,7 +298,11 @@ The tag specified in the Schedule::At::add subroutine
 
 =back
 
+=back
+
 =head1 Configuration Variables
+
+=over 4
 
 =item *
 
@@ -415,7 +419,14 @@ sub AtCfg_linux {
 }
 
 sub AtCfg_aix {
-	&AtCfg_hpux;
+	$AT{'add'} = 'at -t %TIME% 2> /dev/null';
+	$AT{'addFile'} = 'at -f %FILE% %TIME% 2> /dev/null';
+	$AT{'timeFormat'} = '%YEAR%%MONTH%%DAY%%HOUR%%MINS%';
+	$AT{'remove'} = 'at -r %JOBID%';
+	$AT{'getJobs'} = 'at -l';
+	$AT{'headings'} = [];
+	$AT{'getCommand'} = '/usr/spool/cron/atjobs/%JOBID%';
+	$AT{'parseJobList'} = sub { $_[0] =~ /^(\S+)\s+(.*)$/ };
 }
 
 sub AtCfg_dynixptx {

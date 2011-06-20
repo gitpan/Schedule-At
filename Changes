@@ -70,3 +70,9 @@ Revision history for Perl extension Schedule::At.
 
 1.12 Wed May 25 11:53:10 MEST 2011
 	- Added support for NetBSD and DragonFly NetBSD (Dan McMahill <dmcmahill AT netbsd.org>)
+
+1.13 
+	- Fix POD errors (https://rt.cpan.org/Public/Bug/Display.html?id=63810)
+	(reported and patch submitted by carnil [...] debian.org)
+	- Updated support for AIX (Bogenstätter Marcus <bogenstaetter AT empirius.de>)
+	
