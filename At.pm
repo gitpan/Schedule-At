@@ -2,13 +2,13 @@ package Schedule::At;
 
 require 5.004;
 
-# Copyright (c) 1997-2011 Jose A. Rodriguez. All rights reserved.
+# Copyright (c) 1997-2012 Jose A. Rodriguez. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
 use vars qw($VERSION @ISA $TIME_FORMAT $SHELL);
 
-$VERSION = '1.13';
+$VERSION = '1.14';
 
 $SHELL = '';
 
@@ -411,10 +411,13 @@ sub AtCfg_linux {
 	$AT{'getJobs'} = 'atq';
 	$AT{'headings'} = ['Date'];
 	$AT{'getCommand'} = 'at -c %JOBID% |';
-	# 1       2003-01-18 15:30 a josear
+	# 1	2003-01-18 15:30 a josear
+	# 10	Tue Jan 31 10:00:00 2012 a josear (debian)
 	$AT{'parseJobList'} = sub { 
 		my @fields = split("\t", $_[0]);
-		($fields[0], substr($fields[1], 0, 16)) 
+		my $date = substr($fields[1], 0, 
+			($fields[1] =~ /^d/) ? 16 : 24);
+		($fields[0], $date) 
 	};
 }
 

@@ -76,3 +76,6 @@ Revision history for Perl extension Schedule::At.
 	(reported and patch submitted by carnil [...] debian.org)
 	- Updated support for AIX (Bogenstätter Marcus <bogenstaetter AT empirius.de>)
 	
+1.14 Mon Jan 30 16:25:48 MET 2012
+	- Fix https://rt.cpan.org/Public/Bug/Display.html?id=72813
+	(reported by cbouvi [...] cpan.org)
