@@ -8,7 +8,7 @@ require 5.004;
 
 use vars qw($VERSION @ISA $TIME_FORMAT $SHELL);
 
-$VERSION = '1.14';
+$VERSION = '1.15';
 
 $SHELL = '';
 
@@ -428,7 +428,11 @@ sub AtCfg_aix {
 	$AT{'remove'} = 'at -r %JOBID%';
 	$AT{'getJobs'} = 'at -l';
 	$AT{'headings'} = [];
-	$AT{'getCommand'} = '/usr/spool/cron/atjobs/%JOBID%';
+
+	# Only for privileged users (group system), so use alternate command
+	#$AT{'getCommand'} = '/usr/spool/cron/atjobs/%JOBID%';
+	$AT{'getCommand'} = 'at -lv %JOBID% |tail +4 |';
+
 	$AT{'parseJobList'} = sub { $_[0] =~ /^(\S+)\s+(.*)$/ };
 }
 

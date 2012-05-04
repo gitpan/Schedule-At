@@ -79,3 +79,7 @@ Revision history for Perl extension Schedule::At.
 1.14 Mon Jan 30 16:25:48 MET 2012
 	- Fix https://rt.cpan.org/Public/Bug/Display.html?id=72813
 	(reported by cbouvi [...] cpan.org)
+
+1.15 Tue Abr 24 08:14:43 CEST 2012
+	- Change AIX 'getCommand' to use a non privileged one
+		(patch by marcus.bogenstaetter [...] empirius.de)
